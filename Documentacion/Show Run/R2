@@ -1,0 +1,119 @@
+R2#show run
+Building configuration...
+
+Current configuration : 2029 bytes
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname R2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+no aaa new-model
+memory-size iomem 5
+no ip icmp rate-limit unreachable
+ip cef
+!
+!
+ip auth-proxy max-nodata-conns 3
+ip admission max-nodata-conns 3
+no ip dhcp use vrf connected
+!
+ip dhcp pool Usuarios
+   network 192.168.88.0 255.255.255.128
+   default-router 192.168.88.1
+   dns-server 8.8.8.8
+!
+!
+no ip domain lookup
+ip domain name empresa.local
+!
+!
+!
+!
+username admin secret 5 $1$QGfu$pebmV/1RxW4vB00E2jt350
+!
+!
+ip tcp synwait-time 5
+ip ssh version 2
+!
+!
+crypto isakmp policy 10
+ hash md5
+ authentication pre-share
+ group 5
+crypto isakmp key Futbol02 address 203.0.88.6
+!
+!
+crypto ipsec transform-set TS-VPN esp-des esp-sha-hmac
+!
+crypto map CMAP_VPN 10 ipsec-isakmp
+ set peer 203.0.88.6
+ set transform-set TS-VPN
+ match address ACL_VPN
+!
+!
+!
+interface FastEthernet0/0
+ ip address 203.0.88.2 255.255.255.252
+ ip nat outside
+ ip virtual-reassembly
+ duplex auto
+ speed auto
+ crypto map CMAP_VPN
+!
+interface FastEthernet0/1
+ no ip address
+ duplex auto
+ speed auto
+!
+interface FastEthernet0/1.10
+ encapsulation dot1Q 10
+ ip address 192.168.88.1 255.255.255.128
+ ip nat inside
+ ip virtual-reassembly
+!
+ip forward-protocol nd
+ip route 0.0.0.0 0.0.0.0 203.0.88.1
+!
+no ip http server
+no ip http secure-server
+ip nat inside source list ACL_NAT interface FastEthernet0/0 overload
+!
+ip access-list extended ACL_NAT
+ deny   ip 192.168.88.0 0.0.0.127 10.88.5.0 0.0.0.15
+ permit ip 192.168.88.0 0.0.0.127 any
+ip access-list extended ACL_VPN
+ permit ip 192.168.88.0 0.0.0.127 10.88.5.0 0.0.0.15
+!
+no cdp log mismatch duplex
+!
+!
+control-plane
+!
+!
+!
+banner motd ^C########## Solo personal AUTORIZADO ##############^C
+!
+line con 0
+ exec-timeout 5 0
+ privilege level 15
+ logging synchronous
+ login local
+ transport output ssh
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ exec-timeout 5 0
+ login local
+ transport input ssh
+!
+!
+end
