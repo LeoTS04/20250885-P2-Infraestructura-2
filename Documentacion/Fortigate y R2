@@ -12,3 +12,17 @@ Se configuraron dos politicas para la VPN
 Se Configuro VPN
 
 Evidencias en las fotos de Fortigate 2
+
+## R2
+Se configuraron las interfaces necesarias para conectar el R2
+con el ISP y con la red local.
+
+Se realizaron rutas estaticas hacia el ISP
+
+Se configuro NAT
+
+Se configuraron dos politicas para la VPN
+
+Se Configuro VPN
+
+Evidencias en el Show Run
